@@ -22,6 +22,18 @@ public:
   {
     return nred <= red && ngreen <= green && nblue <= blue;
   }
+
+  void updateMinimum(int &red, int &green, int &blue) const
+  {
+    if(nred > red)
+      red = nred;
+
+    if(ngreen > green)
+      green = ngreen;
+
+    if(nblue > blue)
+      blue = nblue;
+  }
 };
 
 typedef std::vector<round> rounds;
@@ -30,20 +42,14 @@ int HowManyColour(const std::string &line, const std::string &name, const size_t
 
 int main(int argc, char *argv[])
 {
-  if(argc != 5)
+  if(argc != 2)
     {
-      std::cout << "Wrong number of inputs... should be 4..." << std::endl;
+      std::cout << "Wrong number of inputs... should be 1..." << std::endl;
       return 1;
     }
 
   const std::string fileName = argv[1];
   std::fstream inputFile(fileName, std::ios::in);
-
-  const int nred   = std::stoi(argv[2]);
-  const int ngreen = std::stoi(argv[3]);
-  const int nblue  = std::stoi(argv[4]);
-
-  int index = 1;
 
   if(inputFile.is_open())
     {
@@ -71,15 +77,12 @@ int main(int argc, char *argv[])
             }
           while(semiColonPos != std::string::npos);
 
-          bool possible = true;
+          int minRed = -1, minGreen = -1, minBlue = -1;
 
           for(auto const& round : lineRounds)
-            possible &= round.possible(nred, ngreen, nblue);
+            round.updateMinimum(minRed, minGreen, minBlue);
 
-          if(possible)
-            total += index;
-
-          ++index;
+          total += minRed * minGreen * minBlue;
         }
 
       std::cout << "Total: " << total << std::endl;
