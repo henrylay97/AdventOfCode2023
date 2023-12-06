@@ -3,6 +3,49 @@
 #include <string>
 #include <vector>
 
+class GridEntry
+{
+  bool star;
+  std::vector<int> adjacentCodes;
+
+public:
+  GridEntry()
+  {
+    star = false;
+    adjacentCodes = std::vector<int>();
+  }
+
+  void SetStar()
+  {
+    star = true;
+  }
+
+  void AddCode(int code)
+  {
+    adjacentCodes.push_back(code);
+  }
+
+  bool IsStar() const
+  {
+    return star;
+  }
+
+  size_t CodesSize() const
+  {
+    return adjacentCodes.size();
+  }
+
+  int CodesProduct() const
+  {
+    int product = 1;
+
+    for(auto const& code : adjacentCodes)
+      product *= code;
+
+    return product;
+  }
+};
+
 bool IsPart(const char c);
 
 int main(int argc, char* argv[])
@@ -22,8 +65,13 @@ int main(int argc, char* argv[])
       std::vector<std::string> grid;
       int total = 0;
 
+      std::vector<std::vector<GridEntry>> gridEntries;
+
       while(std::getline(inputFile, line))
-        grid.push_back(line);
+        {
+          grid.push_back(line);
+          gridEntries.push_back(std::vector<GridEntry>(line.size(), GridEntry()));
+        }
 
       for(int i = 0; i < grid.size(); ++i)
         {
@@ -31,6 +79,9 @@ int main(int argc, char* argv[])
 
           for(int j = 0; j < row.size();)
             {
+              if(row[j] == '*')
+                gridEntries[i][j].SetStar();
+
               if(std::isdigit(row[j]))
                 {
                   size_t pos = row.find('.', j);
@@ -63,6 +114,9 @@ int main(int argc, char* argv[])
                             continue;
 
                           isPart |= IsPart(grid[ii][jj]);
+
+                          if(grid[ii][jj] == '*')
+                            gridEntries[ii][jj].AddCode(number);
                         }
                     }
 
@@ -77,6 +131,19 @@ int main(int argc, char* argv[])
         }
 
       std::cout << "Total: " << total << std::endl;
+
+      int total2 = 0;
+
+      for(auto const& gridRows : gridEntries)
+        {
+          for(auto const& entry : gridRows)
+            {
+              if(entry.IsStar() && entry.CodesSize() == 2)
+                total2 += entry.CodesProduct();
+            }
+        }
+
+      std::cout << "Total2: " << total2 << std::endl;
     }
 }
 
